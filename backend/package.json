@@ -1,0 +1,20 @@
+{
+    "name": "backend",
+    "version": "1.0.0",
+    "main": "index.js",
+    "author": "nhat",
+    "license": "MIT",
+    "scripts": {
+        "dev": "nodemon ./src/index.js"
+    },
+    "dependencies": {
+        "express": "^4.17.1",
+        "mongoose": "^6.0.12"
+    },
+    "devDependencies": {
+        "eslint": "^7.32.0",
+        "eslint-config-airbnb-base": "^14.2.1",
+        "eslint-plugin-import": "^2.25.2",
+        "nodemon": "^2.0.14"
+    }
+}
