@@ -9,7 +9,7 @@ import { useState } from "react";
 import MobileNav from "./MobileNav";
 
 const Header = () => {
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
         <div>
@@ -60,13 +60,13 @@ const Header = () => {
                     <button
                         type="button"
                         className="inline-flex items-center justify-center z-20 md:hidden"
-                        onClick={() => setMenuOpen(!menuOpen)}
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
-                        {menuOpen === false ? <MenuIcon /> : <CloseIcon />}
+                        {isMenuOpen === false ? <MenuIcon /> : <CloseIcon />}
                     </button>
                 </div>
             </div>
-            {menuOpen === true ? <MobileNav /> : ""}
+            {isMenuOpen === true ? <MobileNav /> : ""}
         </div>
     );
 };

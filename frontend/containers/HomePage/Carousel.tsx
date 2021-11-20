@@ -31,19 +31,49 @@ const CCarousel = () => {
             infinite={true}
             autoPlaySpeed={3000}
         >
-            <div>
-                <Image
-                    src={"/images/single-slide-1.png"}
-                    width={100}
-                    height={100}
-                />
+            <div className="flex justify-center w-screen h-screen bg-blue-400">
+                <div className="max-w-7xl flex items-center w-screen h-screen">
+                    <div className="space-y-6">
+                        <div className="text-4xl font-semibold">
+                            Smart Products
+                        </div>
+                        <div className="text-6xl font-medium">
+                            Summer Offer 2020 Collection
+                        </div>
+                        <button className="relative px-12 py-4 border-2 hover:bg-purple-500">
+                            Shop Now
+                        </button>
+                    </div>
+                    <div className="relative h-full w-full">
+                        <Image
+                            src={"/images/single-slide-1.png"}
+                            layout="fill"
+                            objectFit="contain"
+                        />
+                    </div>
+                </div>
             </div>
-            <div>
-                <Image
-                    src={"/images/single-slide-hm1-2.png"}
-                    width={100}
-                    height={100}
-                />
+            <div className="flex justify-center w-screen h-screen bg-blue-400">
+                <div className="max-w-7xl flex items-center w-screen h-screen">
+                    <div className="space-y-6">
+                        <div className="text-4xl font-semibold">
+                            Smart Products
+                        </div>
+                        <div className="text-6xl font-medium">
+                            Summer Offer 2020 Collection
+                        </div>
+                        <button className="px-12 py-4 border-2 hover:bg-purple-500">
+                            Shop Now
+                        </button>
+                    </div>
+                    <div className="relative h-full w-full">
+                        <Image
+                            src={"/images/single-slide-hm1-2.png"}
+                            layout="fill"
+                            objectFit="contain"
+                        />
+                    </div>
+                </div>
             </div>
         </Carousel>
     );
