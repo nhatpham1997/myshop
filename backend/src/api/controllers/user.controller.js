@@ -1,11 +1,23 @@
-const User = require("../models/user.model");
+const httpStatus = require("http-status");
+const { userService } = require("../services");
+const { responseSender } = require("../middlewares/responseSender");
+const catchAsync = require("../utils/catchAsync");
 
-exports.create = async(req, res, next) => {
-    try {
-        const user = new User(req.body);
-        const savedUser = await user.save();
-        res.status(201).json(savedUser);
-    } catch (error) {
-        next(User.checkDuplicateEmail(error));
-    }
+const createUser = catchAsync(async(req, res) => {
+    const user = await userService.createUser(req.body);
+    res.status(httpStatus.CREATED).send(
+        responseSender({ data: user, message: "Create user successfully!" })
+    );
+});
+
+const getUsers = catchAsync(async(req, res) => {
+    const filter = pick(req.query, ["name", "role"]);
+    const options = pick(req.query, ["sortBy", "limit", "page"]);
+    const result = await userService.queryUsers(filter, options);
+    res.status(200).send(responseSender({ data: result }));
+});
+
+module.exports = {
+    createUser,
+    getUsers,
 };
