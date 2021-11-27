@@ -1,13 +1,8 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const CryptoJS = require("crypto-js");
-const { config } = require("dotenv");
+const bcrypt = require("bcryptjs");
 const { toJSON } = require("./plugins");
-
-/**
- * User Roles
- */
-const roles = ["user", "admin"];
+const { roles } = require("../../config/roles");
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -59,37 +54,15 @@ userSchema.statics.isEmailTaken = async function(email, excludeUserId) {
 
 userSchema.methods.isPasswordMatch = async function(password) {
     const user = this;
-    return CryptoJS.AES.decrypt(user.password, config.passwordSecret);
+    return bcrypt.compare(password, user.password);
 };
 
 userSchema.pre("save", async function save(next) {
     const user = this;
     if (user.isModified("password")) {
-        user.password = await CryptoJS.AES.encrypt(
-            user.password,
-            config.passwordSecret
-        );
+        user.password = await bcrypt.hash(user.password, 8);
     }
     next();
 });
-
-// userSchema.static = {
-//     checkDuplicateEmail(error) {
-//         if (error.name === "MongoError" && error.code === 11000) {
-//             return new APIError({
-//                 message: "Validation Error",
-//                 errors: [{
-//                     field: "email",
-//                     location: "body",
-//                     messages: ['"email" already exists'],
-//                 }, ],
-//                 status: httpStatus.CONFLICT,
-//                 isPublic: true,
-//                 stack: error.stack,
-//             });
-//         }
-//         return error;
-//     },
-// };
 
 module.exports = mongoose.model("User", userSchema);

@@ -1,56 +1,41 @@
+const passport = require("passport");
 const httpStatus = require("http-status");
-const User = require("../models/user.model");
-const APIError = require("../utils/APIError");
+const ApiError = require("../utils/ApiError");
+const { roleRights } = require("../../config/roles");
 
-const ADMIN = "admin";
-const LOGGED_USER = "_loggedUser";
-
-const handleJWT = (req, res, next, roles) => async(err, user, info) => {
-    const error = err || info;
-    const logIn = Promise.promisify(req.logIn);
-    const apiError = new APIError({
-        message: error ? error.message : "Unauthorized",
-        status: httpStatus.UNAUTHORIZED,
-        stack: error ? error.stack : undefined,
-    });
-
-    try {
-        if (error || !user) throw error;
-        await logIn(user, { session: false });
-    } catch (error) {
-        return next(apiError);
-    }
-
-    if (roles === LOGGED_USER) {
-        if (
-            user.role !== "admin" &&
-            req.params.userId !== user._id.toString()
-        ) {
-            apiError.status = httpStatus.FORBIDDEN;
-            apiError.message = "Forbidden";
-            return next(apiError);
+const verifyCallback =
+    (req, resolve, reject, requiredRights) => async(err, user, info) => {
+        if (err || info || !user) {
+            return reject(
+                new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate")
+            );
         }
-    } else if (!roles.includes(user.role)) {
-        apiError.status = httpStatus.FORBIDDEN;
-        apiError.message = "Forbidden";
-        return next(apiError);
-    } else if (err || !user) {
-        return next(apiError);
-    }
+        req.user = user;
 
-    req.user = user;
-    return next();
-};
+        if (requiredRights.length) {
+            const userRights = roleRights.get(user.role);
+            const hasRequiredRights = requiredRights.every((requiredRight) =>
+                userRights.includes(requiredRight)
+            );
+            if (!hasRequiredRights && req.params.userId !== user.id) {
+                return reject(new ApiError(httpStatus.FORBIDDEN, "Forbidden"));
+            }
+        }
 
-exports.ADMIN = ADMIN;
-exports.LOGGED_USER = LOGGED_USER;
+        resolve();
+    };
 
-exports.authorize =
-    (roles = User.roles) =>
-    (req, res, next) =>
-    passport.authenticate(
-        "jwt", { session: false },
-        handleJWT(req, res, next, roles)
-    )(req, res, next);
+const auth =
+    (...requiredRights) =>
+    async(req, res, next) => {
+        return new Promise((resolve, reject) => {
+                passport.authenticate(
+                    "jwt", { session: false },
+                    verifyCallback(req, resolve, reject, requiredRights)
+                )(req, res, next);
+            })
+            .then(() => next())
+            .catch((err) => next(err));
+    };
 
-exports.oAuth = (service) => passport.authenticate(service, { session: false });
+module.exports = auth;

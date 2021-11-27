@@ -10,11 +10,21 @@ const createUser = async(userBody) => {
     return user;
 };
 
+const queryUsers = async(filter, options) => {
+    const users = await User.paginate(filter, options);
+    return users;
+};
+
 const getUserById = async(id) => {
     return User.findById(id).populate("avatar");
+};
+
+const getUserByEmail = async(email) => {
+    return User.findOne({ email });
 };
 
 module.exports = {
     createUser,
     getUserById,
+    getUserByEmail,
 };

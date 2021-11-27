@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
         unique: true,
     },
     img: { type: String, required: true },
-    categories: { type: String, required: true },
+    categories: { type: mongoose.Types.ObjectId, ref: "Category" },
     size: { type: String, required: true },
     color: { type: String, required: true },
     price: { type: String, required: true },
