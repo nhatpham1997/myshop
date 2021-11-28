@@ -1,48 +1,37 @@
 const mongoose = require("mongoose");
+const { toJSON } = require("./plugins");
 
 const categorySchema = new mongoose.Schema({
     name: {
         type: String,
-        maxlength: 128,
         trim: true,
         required: true,
     },
-    descriptions: String,
+    slug: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+    },
+    description: {
+        type: String,
+        trim: true,
+    },
+}, {
+    timestamps: true,
 });
 
-categorySchema.static = {
-    asyncget(id) {
-        try {
-            let category;
+// add plugin that converts mongoose to json
+categorySchema.plugin(toJSON);
 
-            if (mongoose.Types.ObjectId.isValid(id)) {
-                category = await this.findById(id).exec();
-            }
-
-            if (category) {
-                return category;
-            }
-
-            throw new APIError({
-                message: "Category does not exists",
-                status: httpStatus.NOT_FOUND,
-            });
-        } catch (error) {
-            throw error;
-        }
-    },
+categorySchema.statics.isSlugTaken = async function(slug, id) {
+    const options = { slug };
+    const _id = new ObjectID(id);
+    if (id) {
+        options._id = { $ne: _id };
+    }
+    const category = await this.findOne(options);
+    return !!category;
 };
-
-categorySchema.method({
-    transform() {
-        const transformed = {};
-        const fields = ["_id", "name", "descriptions"];
-
-        fields.forEach((field) => {
-            transformed[field] = this[field];
-        });
-        return transformed;
-    },
-});
 
 module.exports = mongoose.model("Category", categorySchema);
